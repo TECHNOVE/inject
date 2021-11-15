@@ -43,8 +43,8 @@ export const Inject = (props?: InjectProps | Provider) => (target: Object, prope
             return val;
         },
 
-        set() {
-            throw new Error("Cannot modify injected value");
+        set(newVal: any) {
+            val = newVal;
         }
     });
 };
