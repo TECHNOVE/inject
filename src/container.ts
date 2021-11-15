@@ -111,3 +111,19 @@ export function get<T>(Service: Constructor<T>): T {
 export function load<T>(Service: Constructor<T>): Promise<T> {
     return globalContainer.load(Service);
 }
+
+export function register<T>(Service: Constructor<T>, instance: T) {
+    globalContainer.register(Service, instance);
+}
+
+export function getValue<T>(key: Key<T>): T | undefined {
+    return globalContainer.getValue(key);
+}
+
+export function setValue<T>(key: Key<T>, value: T) {
+    globalContainer.setValue(key, value);
+}
+
+export function removeValue<T>(key: Key<T>): T | undefined {
+    return globalContainer.removeValue(key);
+}
