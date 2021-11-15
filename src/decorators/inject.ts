@@ -6,7 +6,7 @@ export interface InjectProps {
     provider?: FieldProvider;
 }
 
-export const Inject = (props?: InjectProps | Provider) => (target: Object, propertyName: string) => {
+export const Inject = (props?: InjectProps | FieldProvider) => (target: Object, propertyName: string) => {
     const metadata = Reflect.getMetadata("design:type", target, propertyName);
 
     if (typeof props === "function") {
