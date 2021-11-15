@@ -6,7 +6,7 @@ export interface ServiceData {
 
 const SERVICE_KEY = "__service__";
 export const defaultData: ServiceData = {
-    singleton: false,
+    singleton: true,
 };
 
 export function setServiceData(object: any, data: ServiceData) {

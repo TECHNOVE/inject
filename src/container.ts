@@ -27,8 +27,10 @@ export class Container {
     public register<T>(Service: Constructor<T>, instance: T) {
         const serviceData: ServiceData = getServiceData(Service);
 
-        if (serviceData.singleton) {
-            throw new Error(`Cannot register singleton ${Service.name}`);
+        if (!serviceData.singleton) {
+            throw new Error(
+                `Can only register singletons, not ${Service.name}`
+            );
         }
 
         const all = getAllPrototypes(Service);
@@ -54,13 +56,13 @@ export class Container {
     public getMaybePromise<T>(Service: Constructor<T>): T | Promise<T> {
         const serviceData: ServiceData = getServiceData(Service);
 
-        if (!serviceData.singleton && this.storage.has(Service)) {
+        if (serviceData.singleton && this.storage.has(Service)) {
             return this.storage.get(Service);
         }
 
         const all = getAllPrototypes(Service);
 
-        if (!serviceData.singleton) {
+        if (serviceData.singleton) {
             for (const func of all) {
                 if (this.storage.has(func)) {
                     throw new Error(
@@ -76,7 +78,7 @@ export class Container {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const service = new (Service as any)();
 
-        if (!serviceData.singleton) {
+        if (serviceData.singleton) {
             for (const func of all) {
                 this.storage.set(func, service);
             }
