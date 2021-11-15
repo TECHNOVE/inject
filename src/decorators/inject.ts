@@ -21,7 +21,7 @@ export const Inject = (props?: InjectProps | FieldProvider) => (target: Object, 
 
     let val: any = undefined;
     const provider: Provider = (container: Container, target: Object) => {
-        const retrieved = retrievalProvider(container, target, propertyName);
+        const retrieved = retrievalProvider(container, target, propertyName, metadata);
         if (retrieved instanceof Promise) {
             return retrieved.then(newVal => val = newVal);
         } else {
