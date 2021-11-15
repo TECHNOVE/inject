@@ -1,10 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/ban-types */
+
 import { Container } from "../container";
-import {
-    Constructor,
-    FieldProvider,
-    ParameterProvider,
-    Provider,
-} from "../types";
+import { Constructor, FieldProvider, Provider } from "../types";
 import { getInjectedData, InjectedData } from "../injector";
 import { FieldParameter, FieldProperty } from "../field";
 
@@ -16,8 +13,6 @@ export const Inject: (
     props?: InjectProps | FieldProvider<any>
 ) => PropertyDecorator & ParameterDecorator =
     (props?: InjectProps | FieldProvider<any>) =>
-    // unfortunately need to disable, since this is the actual TS type
-    // eslint-disable-next-line @typescript-eslint/ban-types
     (
         target: Object,
         propertyName: string | symbol,
@@ -58,7 +53,6 @@ export const Inject: (
                 return container.getMaybePromise(propertyType);
             });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data: InjectedData = getInjectedData(
             parameterIndex === undefined ? target : (target as any).prototype
         );
@@ -66,10 +60,8 @@ export const Inject: (
         if (parameterIndex === undefined) {
             const defaultValue = (target as any)[propertyName];
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let val: any = undefined;
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            const provider: Provider<unknown> = (
+            const provider: Provider = (
                 container: Container,
                 target: Object
             ) => {

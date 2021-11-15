@@ -13,7 +13,7 @@ export type PropertyType =
     | Array<any>
     | Constructor<any>;
 
-export type Provider<T> = (
+export type Provider = (
     container: Container,
     target: Object
 ) => any | Promise<any>;

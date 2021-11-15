@@ -93,7 +93,7 @@ export class Container {
         }
 
         let anyPromises = false;
-        const mappedParams = injectData.parameters.map((param, i) => {
+        const mappedParams = injectData.parameters.map((param) => {
             const val = param(this, Service);
             anyPromises ||= val instanceof Promise;
             return val;

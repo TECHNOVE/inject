@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function,@typescript-eslint/no-unused-vars */
+
 import { Inject } from "./inject";
 import { getInjectedData } from "../injector";
 import { expect } from "chai";
@@ -18,7 +20,7 @@ describe("@Inject", () => {
         class Service {}
 
         class A {
-            constructor(@Inject() val: Service) {}
+            constructor(@Inject() public val: Service) {}
         }
     });
 

@@ -52,7 +52,7 @@ describe("Container", () => {
 
     it("should be able to handle dependent services", () => {
         class SimpleService {
-            public val: number = 5;
+            public val = 5;
         }
 
         class DepService {
@@ -171,7 +171,7 @@ describe("Container", () => {
 
     it("errors when missing injects in constructor", () => {
         class A {
-            constructor(val: number) {}
+            constructor(public val: number) {}
         }
 
         const container = new Container();
@@ -179,9 +179,9 @@ describe("Container", () => {
 
         class B {
             constructor(
-                @Inject() val: number,
+                @Inject() public val: number,
                 public val2: string,
-                @Inject() val3: boolean
+                @Inject() public val3: boolean
             ) {}
         }
         expect(() => container.get(B)).to.throw("found missing a @Inject");
