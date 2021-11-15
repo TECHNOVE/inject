@@ -30,4 +30,4 @@ jobs:
               with:
                   prettier: true
                   eslint: true
-                  eslint_extensions: ".js,.ts"
+                  eslint_extensions: "js,ts"
