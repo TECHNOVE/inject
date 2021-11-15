@@ -116,4 +116,17 @@ describe("Container", () => {
         expect(service.val.val.val.val).to.equal(5);
     });
 
+    // create test for singletons
+    it("should create different instances for singletons", () => {
+        @Service({singleton: true})
+        class SimpleService {
+        }
+
+        const container = new Container();
+        const service1 = container.get(SimpleService);
+        const service2 = container.get(SimpleService);
+
+        expect(service1).to.not.equal(service2);
+    });
+
 });

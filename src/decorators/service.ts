@@ -1,7 +1,12 @@
-export interface ServiceProps {
-}
-export const SERVICE_KEY = "__service__";
+import {defaultData, setServiceData} from "../service";
 
-export const Service = (data?: ServiceProps) => (target: any) => {
-    Reflect.defineMetadata(SERVICE_KEY, data || {}, target);
+export interface ServiceProps {
+    singleton: boolean;
+}
+
+export const Service = (data?: Partial<ServiceProps>) => (target: any) => {
+    setServiceData(target, {
+        ...defaultData,
+        ...(data || {}),
+    });
 };

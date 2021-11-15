@@ -2,8 +2,9 @@ import "reflect-metadata";
 
 import {Constructor, Provider} from "./types";
 import {INJECT_KEY, InjectedData} from "./injector";
-import {SERVICE_KEY, ServiceProps} from "./decorators/service";
 import {Key} from "./key";
+import {getServiceData, ServiceData} from "./service";
+import {getAllPrototypes} from "./utils";
 
 export class Container {
     private readonly storage = new Map<any, any>();
@@ -21,13 +22,13 @@ export class Container {
     }
 
     public register<T>(Service: Constructor<T>, instance: T) {
-        const all: Function[] = [Service];
+        const serviceData: ServiceData = getServiceData(Service);
 
-        let obj: any = Object.getPrototypeOf(Service);
-        while (obj && typeof obj === "function" && obj.prototype) {
-            all.push(obj);
-            obj = Object.getPrototypeOf(obj);
+        if (serviceData.singleton) {
+            throw new Error(`Cannot register singleton ${Service.name}`);
         }
+
+        const all = getAllPrototypes(Service);
 
         for (const func of all) {
             if (this.storage.has(func)) {
@@ -46,31 +47,30 @@ export class Container {
 
     // This function is not intended to be used directly, use get(Service) instead
     public getMaybePromise<T>(Service: Constructor<T>): T | Promise<T> {
-        if (this.storage.has(Service)) {
+        const serviceData: ServiceData = getServiceData(Service);
+
+        if (!serviceData.singleton && this.storage.has(Service)) {
             return this.storage.get(Service);
         }
 
-        const all: Function[] = [Service];
+        const all = getAllPrototypes(Service);
 
-        let obj: any = Object.getPrototypeOf(Service);
-        while (obj && typeof obj === "function" && obj.prototype) {
-            all.push(obj);
-            obj = Object.getPrototypeOf(obj);
-        }
-
-        for (const func of all) {
-            if (this.storage.has(func)) {
-                throw new Error(`When registering ${Service.name} found existing ${func.name} registered`);
+        if (!serviceData.singleton) {
+            for (const func of all) {
+                if (this.storage.has(func)) {
+                    throw new Error(`When registering ${Service.name} found existing ${func.name} registered`);
+                }
             }
         }
 
-        const serviceProps: ServiceProps = Reflect.getMetadata(SERVICE_KEY, Service) || {};
         const injectData: InjectedData[] = Reflect.getMetadata(INJECT_KEY, Service.prototype) || [];
 
         const service = new (Service as any)();
 
-        for (const func of all) {
-            this.storage.set(func, service);
+        if (!serviceData.singleton) {
+            for (const func of all) {
+                this.storage.set(func, service);
+            }
         }
 
         let anyPromises = false;
