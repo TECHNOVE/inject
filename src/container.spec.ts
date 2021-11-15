@@ -18,6 +18,13 @@ describe("Container", () => {
         expect(container.getValue(key)).to.equal(5);
     });
 
+    it("should be able to register strings", () => {
+        const container = new Container();
+        const key = new Key<string>("test");
+        container.setValue(key, "test");
+        expect(container.getValue(key)).to.equal("test");
+    });
+
     it("should be able to remove a value", () => {
         const container = new Container();
         const key = new Key<number>("test");

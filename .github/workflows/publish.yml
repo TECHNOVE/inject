@@ -14,6 +14,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@technove'
       - run: yarn
-      - run: yarn publish
+      - run: yarn test
+      - run: yarn package
+      - run: cd pkg && yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {Constructor} from "./types";
+import {Constructor, Provider} from "./types";
 import {INJECT_KEY, InjectedData} from "./injector";
 import {SERVICE_KEY, ServiceProps} from "./decorators/service";
 import {Key} from "./key";
@@ -74,8 +74,8 @@ export class Container {
         }
 
         let anyPromises = false;
-        const mapped = injectData.map(({provider}) => {
-            const val = provider(this);
+        const mapped = injectData.map(({provider}: {provider: Provider}) => {
+            const val = provider(this, service);
             anyPromises ||= val instanceof Promise;
             return val;
         });
@@ -110,4 +110,20 @@ export function get<T>(Service: Constructor<T>): T {
 
 export function load<T>(Service: Constructor<T>): Promise<T> {
     return globalContainer.load(Service);
+}
+
+export function register<T>(Service: Constructor<T>, instance: T) {
+    globalContainer.register(Service, instance);
+}
+
+export function getValue<T>(key: Key<T>): T | undefined {
+    return globalContainer.getValue(key);
+}
+
+export function setValue<T>(key: Key<T>, value: T) {
+    globalContainer.setValue(key, value);
+}
+
+export function removeValue<T>(key: Key<T>): T | undefined {
+    return globalContainer.removeValue(key);
 }
