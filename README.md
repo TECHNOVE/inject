@@ -23,6 +23,8 @@ Then at the top of your application's entry point, add the following line:
 import "reflect-metadata";
 ```
 
+And finally in your `tsconfig.json`, set `experimentalDecorators` and `emitDecoratorMetadata` to `true`.
+
 ## Usage
 
 ### Defining a service
