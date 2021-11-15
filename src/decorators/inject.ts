@@ -104,7 +104,7 @@ export const Inject: (
                 container: Container,
                 target: Constructor<unknown>
             ) => {
-                const field: FieldParameter<unknown> = {
+                const field: FieldParameter = {
                     fieldType: "parameter",
                     target,
                     type: propertyType,
