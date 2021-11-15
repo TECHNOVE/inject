@@ -15,6 +15,7 @@ jobs:
           scope: '@technove'
       - run: yarn
       - run: yarn build
+      - run: yarn test
       - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

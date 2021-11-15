@@ -1,4 +1,4 @@
-import {Provider} from "./decorators/inject";
+import {Provider} from "./types";
 
 export interface InjectedData {
     provider: Provider;
