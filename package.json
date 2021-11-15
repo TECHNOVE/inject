@@ -1,18 +1,40 @@
 {
   "name": "@technove/inject",
   "description": "Dependency injection for TypeScript",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "PaulBGD",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha"
+    "test": "mocha",
+    "package": "pika build"
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-ts-standard-pkg", {
+          "tsconfig": "publish.tsconfig.json"
+        }
+      ],
+      [
+        "@pika/plugin-build-node"
+      ],
+      [
+        "@pika/plugin-build-web"
+      ],
+      [
+        "@pika/plugin-build-types"
+      ]
+    ]
   },
   "dependencies": {},
   "devDependencies": {
+    "@pika/pack": "^0.5.0",
+    "@pika/plugin-build-node": "^0.9.2",
+    "@pika/plugin-build-types": "^0.9.2",
+    "@pika/plugin-build-web": "^0.9.2",
+    "@pika/plugin-standard-pkg": "^0.9.2",
+    "@pika/plugin-ts-standard-pkg": "^0.9.2",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
     "chai": "^4.3.4",
