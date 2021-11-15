@@ -37,7 +37,7 @@ describe("Container", () => {
     it("should be able to register a service", () => {
         @Service()
         class SimpleService {
-            public val: number = 5;
+            public val = 5;
         }
 
         const container = new Container();
@@ -85,7 +85,7 @@ describe("Container", () => {
     it("should be able to handle many levels of dependent services", () => {
         @Service()
         class SimpleService {
-            public val: number = 5;
+            public val = 5;
         }
 
         @Service()

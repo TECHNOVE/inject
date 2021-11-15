@@ -6,9 +6,19 @@ export interface InjectProps {
     provider?: FieldProvider;
 }
 
-export const Inject =
+export const Inject: (
+    props?: InjectProps | FieldProvider
+) => PropertyDecorator =
     (props?: InjectProps | FieldProvider) =>
-    (target: Object, propertyName: string) => {
+    // unfortunately need to disable, since this is the actual TS type
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    (target: Object, propertyName: string | symbol) => {
+        if (typeof propertyName === "symbol") {
+            throw new Error(
+                "Inject decorator can only be used on class properties"
+            );
+        }
+
         const metadata = Reflect.getMetadata(
             "design:type",
             target,
@@ -27,7 +37,9 @@ export const Inject =
                 return container.getMaybePromise(metadata);
             });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let val: any = undefined;
+        // eslint-disable-next-line @typescript-eslint/ban-types
         const provider: Provider = (container: Container, target: Object) => {
             const retrieved = retrievalProvider(
                 container,
@@ -59,7 +71,7 @@ export const Inject =
                 return val;
             },
 
-            set(newVal: any) {
+            set(newVal: never) {
                 val = newVal;
             },
         });

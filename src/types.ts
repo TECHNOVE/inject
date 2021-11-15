@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types,@typescript-eslint/no-explicit-any */
+
 import { Container } from "./container";
 
 export type Constructor<T> = Function & { prototype: T };

@@ -7,7 +7,8 @@ import { getServiceData, ServiceData } from "./service";
 import { getAllPrototypes } from "./utils";
 
 export class Container {
-    private readonly storage = new Map<any, any>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private readonly storage = new Map<unknown, any>();
 
     public constructor() {
         // public constructor
@@ -72,6 +73,7 @@ export class Container {
         const injectData: InjectedData[] =
             Reflect.getMetadata(INJECT_KEY, Service.prototype) || [];
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const service = new (Service as any)();
 
         if (!serviceData.singleton) {
