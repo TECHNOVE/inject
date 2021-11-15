@@ -1,4 +1,4 @@
-import {Constructor} from "./types";
+import { Constructor } from "./types";
 
 export function getAllPrototypes<T>(Service: Constructor<T>): Function[] {
     const all: Function[] = [Service];

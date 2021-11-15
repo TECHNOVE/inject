@@ -1,5 +1,4 @@
 export class Key<T> {
-
     private readonly id: string;
 
     public constructor(id: string) {
@@ -9,5 +8,4 @@ export class Key<T> {
     public getId(): string {
         return this.id;
     }
-
 }

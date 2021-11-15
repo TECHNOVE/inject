@@ -13,5 +13,5 @@ export function setServiceData(object: any, data: ServiceData) {
 
 export function getServiceData(object: any): ServiceData {
     const metadata = Reflect.getMetadata(SERVICE_KEY, object);
-    return metadata || {...defaultData};
+    return metadata || { ...defaultData };
 }

@@ -1,10 +1,10 @@
 import "reflect-metadata";
 
-import {Constructor, Provider} from "./types";
-import {INJECT_KEY, InjectedData} from "./injector";
-import {Key} from "./key";
-import {getServiceData, ServiceData} from "./service";
-import {getAllPrototypes} from "./utils";
+import { Constructor, Provider } from "./types";
+import { INJECT_KEY, InjectedData } from "./injector";
+import { Key } from "./key";
+import { getServiceData, ServiceData } from "./service";
+import { getAllPrototypes } from "./utils";
 
 export class Container {
     private readonly storage = new Map<any, any>();
@@ -16,7 +16,9 @@ export class Container {
     public get<T>(Service: Constructor<T>) {
         const val = this.getMaybePromise(Service);
         if (val instanceof Promise) {
-            throw new Error(`Tried to resolve async service with get(${Service.name}), please use load(${Service.name}) instead`);
+            throw new Error(
+                `Tried to resolve async service with get(${Service.name}), please use load(${Service.name}) instead`
+            );
         }
         return val;
     }
@@ -32,7 +34,9 @@ export class Container {
 
         for (const func of all) {
             if (this.storage.has(func)) {
-                throw new Error(`When registering ${Service.name} found existing ${func.name} registered`);
+                throw new Error(
+                    `When registering ${Service.name} found existing ${func.name} registered`
+                );
             }
         }
 
@@ -58,12 +62,15 @@ export class Container {
         if (!serviceData.singleton) {
             for (const func of all) {
                 if (this.storage.has(func)) {
-                    throw new Error(`When registering ${Service.name} found existing ${func.name} registered`);
+                    throw new Error(
+                        `When registering ${Service.name} found existing ${func.name} registered`
+                    );
                 }
             }
         }
 
-        const injectData: InjectedData[] = Reflect.getMetadata(INJECT_KEY, Service.prototype) || [];
+        const injectData: InjectedData[] =
+            Reflect.getMetadata(INJECT_KEY, Service.prototype) || [];
 
         const service = new (Service as any)();
 
@@ -74,11 +81,13 @@ export class Container {
         }
 
         let anyPromises = false;
-        const mapped = injectData.map(({provider}: {provider: Provider}) => {
-            const val = provider(this, service);
-            anyPromises ||= val instanceof Promise;
-            return val;
-        });
+        const mapped = injectData.map(
+            ({ provider }: { provider: Provider }) => {
+                const val = provider(this, service);
+                anyPromises ||= val instanceof Promise;
+                return val;
+            }
+        );
 
         if (!anyPromises) {
             return service;

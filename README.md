@@ -28,7 +28,7 @@ import "reflect-metadata";
 ### Defining a service
 
 ```ts
-import {get, Service} from "@technove/inject";
+import { get, Service } from "@technove/inject";
 
 class MyLogger {
     log(message: string) {
@@ -50,7 +50,7 @@ A popular use-case for dependency injection is to define a different implementat
 This is possible by declaring an abstract class, then extending it for each environment.
 
 ```ts
-import {get, register, Service} from "@technove/inject";
+import { get, register, Service } from "@technove/inject";
 
 // logger.ts
 
@@ -88,7 +88,7 @@ Often you'll create a service that depends on another service.
 This is very easy to use, and is very flexible.
 
 ```ts
-import {get, Service} from "@technove/inject";
+import { get, Service } from "@technove/inject";
 
 class Logger {
     log(message: string) {
@@ -99,7 +99,7 @@ class Logger {
 class MyService {
     @Inject()
     private readonly logger!: Logger; // when you call get(MyService) the first time, this value will be filled
-    
+
     logMessage() {
         this.logger.log("Hello, World!");
     }
@@ -114,14 +114,14 @@ Sometimes you may want to create a custom provider.
 This is made very simple!
 
 ```ts
-import {get, FieldProvider, Inject} from "@technove/inject";
+import { get, FieldProvider, Inject } from "@technove/inject";
 
 const provider: FieldProvider = () => "Hello, World!";
 
 class MyService {
     @Inject(provider)
     private readonly message!: string;
-    
+
     logMessage() {
         console.log(this.message);
     }
@@ -141,7 +141,8 @@ If you take arguments, you can make this fairly powerful.
 Say you had a filesystem service, you could use it to read files and inject it into your service:
 
 ```ts
-const ReadFile = (path: string) => (container: Container) => container.get(FileSystem).readFile(path);
+const ReadFile = (path: string) => (container: Container) =>
+    container.get(FileSystem).readFile(path);
 
 class MyService {
     @Inject(ReadFile("myfile.json"))
@@ -169,7 +170,7 @@ class MyService {
 // using `get(MyService)` will throw an error, because you cannot load services with async values using it.
 // instead use the following:
 
-await load(MyService).data // has data from myfile.json!
+await load(MyService).data; // has data from myfile.json!
 ```
 
 ## License

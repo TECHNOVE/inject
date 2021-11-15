@@ -1,9 +1,9 @@
-import {expect} from "chai";
-import {describe, it} from "mocha";
-import {Container} from "./container";
-import {Key} from "./key";
-import {Service} from "./decorators/service";
-import {Inject} from "./decorators/inject";
+import { expect } from "chai";
+import { describe, it } from "mocha";
+import { Container } from "./container";
+import { Key } from "./key";
+import { Service } from "./decorators/service";
+import { Inject } from "./decorators/inject";
 
 describe("Container", () => {
     it("should be able to create a container", () => {
@@ -118,9 +118,8 @@ describe("Container", () => {
 
     // create test for singletons
     it("should create different instances for singletons", () => {
-        @Service({singleton: true})
-        class SimpleService {
-        }
+        @Service({ singleton: true })
+        class SimpleService {}
 
         const container = new Container();
         const service1 = container.get(SimpleService);
@@ -128,5 +127,4 @@ describe("Container", () => {
 
         expect(service1).to.not.equal(service2);
     });
-
 });

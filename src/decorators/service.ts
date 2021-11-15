@@ -1,4 +1,4 @@
-import {defaultData, setServiceData} from "../service";
+import { defaultData, setServiceData } from "../service";
 
 export interface ServiceProps {
     singleton: boolean;
