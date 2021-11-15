@@ -50,6 +50,23 @@ describe("Container", () => {
         expect(container.get(SimpleService)).to.equal(service);
     });
 
+    it("should be able to handle dependent services", () => {
+        class SimpleService {
+            public val: number = 5;
+        }
+
+        class DepService {
+            @Inject()
+            public val!: SimpleService;
+        }
+
+        const container = new Container();
+        const service = container.get(DepService);
+
+        expect(service).to.be.instanceOf(DepService);
+        expect(service.val).to.be.instanceOf(SimpleService);
+    });
+
     it("should be able to handle self referential services", () => {
         @Service()
         class SelfService {
@@ -62,26 +79,6 @@ describe("Container", () => {
 
         expect(service).to.be.instanceOf(SelfService);
         expect(service.val).to.equal(service);
-    });
-
-    it("should be able to handle dependent services", () => {
-        @Service()
-        class SimpleService {
-            @Inject()
-            public val!: number;
-        }
-
-        @Service()
-        class DepService {
-            @Inject()
-            public val!: SimpleService;
-        }
-
-        const container = new Container();
-        const service = container.get(DepService);
-
-        expect(service).to.be.instanceOf(DepService);
-        expect(service.val).to.be.instanceOf(SimpleService);
     });
 
     it("should be able to handle many levels of dependent services", () => {
@@ -118,7 +115,6 @@ describe("Container", () => {
         expect(service.val.val.val.val).to.equal(5);
     });
 
-    // create test for singletons
     it("should create different instances for singletons", () => {
         @Service({ singleton: false })
         class SimpleService {}
@@ -128,5 +124,66 @@ describe("Container", () => {
         const service2 = container.get(SimpleService);
 
         expect(service1).to.not.equal(service2);
+    });
+
+    it("can inject services into the constructor", () => {
+        class SimpleService {
+            public val = 5;
+        }
+
+        class A {
+            constructor(@Inject() public service: SimpleService) {}
+        }
+
+        const container = new Container();
+        expect(container.get(A).service).to.be.instanceOf(SimpleService);
+    });
+
+    it("can handle custom providers in the constructor", () => {
+        const token = new Key<number>("multiplier");
+
+        const Multiplier = (defaultValue?: number) =>
+            Inject((container, field) => {
+                if (field.type !== Number) {
+                    throw new Error("Only usable on number params");
+                }
+                return (defaultValue || 1) * (container.getValue(token) || 5);
+            });
+
+        @Service({ singleton: false })
+        class A {
+            constructor(@Multiplier(5) public val: number) {}
+        }
+
+        @Service({ singleton: false })
+        class B {
+            constructor(@Multiplier() public val: number) {}
+        }
+
+        const container = new Container();
+        expect(container.get(A).val).to.be.equal(5 * 5);
+        expect(container.get(B).val).to.be.equal(5);
+
+        container.setValue(token, 10);
+        expect(container.get(A).val).to.be.equal(10 * 5);
+        expect(container.get(B).val).to.be.equal(10);
+    });
+
+    it("errors when missing injects in constructor", () => {
+        class A {
+            constructor(val: number) {}
+        }
+
+        const container = new Container();
+        expect(() => container.get(A)).to.throw("found missing a @Inject");
+
+        class B {
+            constructor(
+                @Inject() val: number,
+                public val2: string,
+                @Inject() val3: boolean
+            ) {}
+        }
+        expect(() => container.get(B)).to.throw("found missing a @Inject");
     });
 });

@@ -1,25 +1,19 @@
 import { expect } from "chai";
-import { getInjectedData, InjectedData, setInjectedData } from "./injector";
+import { getInjectedData } from "./injector";
 
 describe("injector", () => {
     it("returns an empty array for a new object", () => {
         class A {}
 
-        expect(getInjectedData(A)).length(0);
+        expect(getInjectedData(A.prototype).properties).length(0);
+        expect(getInjectedData(A.prototype).parameters).length(0);
     });
 
-    it("can set and retrieve injected data", () => {
+    it("returns same object each time", () => {
         class A {}
 
-        const data: InjectedData[] = [
-            {
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                provider: () => {},
-            },
-        ];
-
-        setInjectedData(A, data);
-
-        expect(getInjectedData(A)).to.deep.equal(data);
+        expect(getInjectedData(A.prototype)).to.be.equal(
+            getInjectedData(A.prototype)
+        );
     });
 });

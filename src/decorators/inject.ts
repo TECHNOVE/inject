@@ -1,29 +1,50 @@
 import { Container } from "../container";
-import { FieldProvider, Provider } from "../types";
-import { getInjectedData, InjectedData, setInjectedData } from "../injector";
+import {
+    Constructor,
+    FieldProvider,
+    ParameterProvider,
+    Provider,
+} from "../types";
+import { getInjectedData, InjectedData } from "../injector";
+import { FieldParameter, FieldProperty } from "../field";
 
 export interface InjectProps {
-    provider?: FieldProvider;
+    provider?: FieldProvider<any>;
 }
 
 export const Inject: (
-    props?: InjectProps | FieldProvider
-) => PropertyDecorator =
-    (props?: InjectProps | FieldProvider) =>
+    props?: InjectProps | FieldProvider<any>
+) => PropertyDecorator & ParameterDecorator =
+    (props?: InjectProps | FieldProvider<any>) =>
     // unfortunately need to disable, since this is the actual TS type
     // eslint-disable-next-line @typescript-eslint/ban-types
-    (target: Object, propertyName: string | symbol) => {
+    (
+        target: Object,
+        propertyName: string | symbol,
+        parameterIndex?: number
+    ) => {
         if (typeof propertyName === "symbol") {
             throw new Error(
                 "Inject decorator can only be used on class properties"
             );
         }
 
-        const metadata = Reflect.getMetadata(
-            "design:type",
-            target,
-            propertyName
-        );
+        let propertyType: any;
+
+        if (parameterIndex === undefined) {
+            propertyType = Reflect.getMetadata(
+                "design:type",
+                target,
+                propertyName
+            );
+        } else {
+            const types = Reflect.getMetadata(
+                "design:paramtypes",
+                target,
+                propertyName
+            );
+            propertyType = types[parameterIndex];
+        }
 
         if (typeof props === "function") {
             props = {
@@ -34,44 +55,70 @@ export const Inject: (
         const retrievalProvider =
             props?.provider ||
             ((container: Container) => {
-                return container.getMaybePromise(metadata);
+                return container.getMaybePromise(propertyType);
             });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let val: any = undefined;
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        const provider: Provider = (container: Container, target: Object) => {
-            const retrieved = retrievalProvider(
-                container,
-                target,
-                propertyName,
-                metadata
-            );
-            if (retrieved instanceof Promise) {
-                return retrieved.then((newVal) => (val = newVal));
-            } else {
-                val = retrieved;
-            }
-        };
+        const data: InjectedData = getInjectedData(
+            parameterIndex === undefined ? target : (target as any).prototype
+        );
 
-        const data: InjectedData[] = getInjectedData(target);
-        data.push({
-            provider,
-        });
-        setInjectedData(target, data);
+        if (parameterIndex === undefined) {
+            const defaultValue = (target as any)[propertyName];
 
-        Object.defineProperty(target, propertyName, {
-            get() {
-                if (val === undefined) {
-                    throw new Error(
-                        `Property ${propertyName} has not been injected`
-                    );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let val: any = undefined;
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            const provider: Provider<unknown> = (
+                container: Container,
+                target: Object
+            ) => {
+                const field: FieldProperty<unknown> = {
+                    fieldType: "property",
+                    defaultValue,
+                    target,
+                    type: propertyType,
+                };
+
+                const retrieved = retrievalProvider(container, field);
+                if (retrieved instanceof Promise) {
+                    return retrieved.then((newVal) => (val = newVal));
+                } else {
+                    val = retrieved;
                 }
-                return val;
-            },
+            };
+            data.properties.push(provider);
 
-            set(newVal: never) {
-                val = newVal;
-            },
-        });
+            Object.defineProperty(target, propertyName, {
+                get() {
+                    if (val === undefined) {
+                        throw new Error(
+                            `Property ${propertyName} has not been injected`
+                        );
+                    }
+                    return val;
+                },
+
+                set(newVal: never) {
+                    val = newVal;
+                },
+            });
+        } else {
+            if (propertyType === target) {
+                throw new Error("Cannot inject self in constructor");
+            }
+
+            data.parameters[parameterIndex] = (
+                container: Container,
+                target: Constructor<unknown>
+            ) => {
+                const field: FieldParameter<unknown> = {
+                    fieldType: "parameter",
+                    target,
+                    type: propertyType,
+                };
+
+                return retrievalProvider(container, field);
+            };
+        }
     };

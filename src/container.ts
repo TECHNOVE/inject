@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { Constructor, Provider } from "./types";
+import { Constructor } from "./types";
 import { getInjectedData, InjectedData } from "./injector";
 import { Key } from "./key";
 import { getServiceData, ServiceData } from "./service";
@@ -72,31 +72,61 @@ export class Container {
             }
         }
 
-        const injectData: InjectedData[] = getInjectedData(Service.prototype);
+        const injectData: InjectedData = getInjectedData(Service.prototype);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const service = new (Service as any)();
+        if (
+            injectData.parameters.length !==
+            Service.prototype.constructor.length
+        ) {
+            throw new Error(
+                `When registering ${Service.name} found ${injectData.parameters.length} parameters, but constructor has ${Service.prototype.constructor.length}`
+            );
+        }
 
-        if (serviceData.singleton) {
-            for (const func of all) {
-                this.storage.set(func, service);
+        for (let i = 0; i < injectData.parameters.length; i++) {
+            const provider = injectData.parameters[i];
+            if (!provider) {
+                throw new Error(
+                    `When registering ${Service.name}, parameter ${i} was found missing a @Inject()`
+                );
             }
         }
 
         let anyPromises = false;
-        const mapped = injectData.map(
-            ({ provider }: { provider: Provider }) => {
+        const mappedParams = injectData.parameters.map((param, i) => {
+            const val = param(this, Service);
+            anyPromises ||= val instanceof Promise;
+            return val;
+        });
+
+        if (anyPromises) {
+            return Promise.all(mappedParams).then((values) => create(values));
+        }
+
+        const create = (params: unknown[]) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const service = new (Service as any)(...params);
+
+            if (serviceData.singleton) {
+                for (const func of all) {
+                    this.storage.set(func, service);
+                }
+            }
+
+            const mapped = injectData.properties.map((provider) => {
                 const val = provider(this, service);
                 anyPromises ||= val instanceof Promise;
                 return val;
+            });
+
+            if (!anyPromises) {
+                return service;
             }
-        );
 
-        if (!anyPromises) {
-            return service;
-        }
+            return Promise.all(mapped).then(() => service);
+        };
 
-        return Promise.all(mapped).then(() => service);
+        return create(mappedParams);
     }
 
     public getValue<T>(key: Key<T>): T | undefined {

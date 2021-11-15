@@ -1,17 +1,20 @@
-import { Provider } from "./types";
+import { ParameterProvider, Provider } from "./types";
 
 export interface InjectedData {
-    provider: Provider;
+    properties: Provider<unknown>[];
+    parameters: ParameterProvider<unknown>[];
 }
 
 const INJECT_KEY = "__inject__";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function getInjectedData(Service: Object): InjectedData[] {
-    return Reflect.getMetadata(INJECT_KEY, Service) || [];
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function setInjectedData(Service: Object, injected: InjectedData[]) {
-    Reflect.defineMetadata(INJECT_KEY, injected, Service);
+export function getInjectedData<T>(Service: Object): InjectedData {
+    if (Reflect.hasMetadata(INJECT_KEY, Service)) {
+        return Reflect.getMetadata(INJECT_KEY, Service);
+    }
+    const data: InjectedData = {
+        properties: [],
+        parameters: new Array(Service.constructor.length),
+    };
+    Reflect.defineMetadata(INJECT_KEY, data, Service);
+    return data;
 }
