@@ -1,11 +1,9 @@
 import {INJECT_KEY} from "../injector";
 import {Container} from "../container";
-
-export type NonUndefined = Exclude<any, undefined>;
-export type Provider = (container: Container) => (NonUndefined | Promise<NonUndefined>);
+import {FieldProvider, Provider} from "../types";
 
 export interface InjectProps {
-    provider?: Provider;
+    provider?: FieldProvider;
 }
 
 export const Inject = (props?: InjectProps | Provider) => (target: Object, propertyName: string) => {
@@ -22,8 +20,8 @@ export const Inject = (props?: InjectProps | Provider) => (target: Object, prope
     });
 
     let val: any = undefined;
-    const provider: Provider = (container: Container) => {
-        const retrieved = retrievalProvider(container);
+    const provider: Provider = (container: Container, target: Object) => {
+        const retrieved = retrievalProvider(container, target, propertyName);
         if (retrieved instanceof Promise) {
             return retrieved.then(newVal => val = newVal);
         } else {

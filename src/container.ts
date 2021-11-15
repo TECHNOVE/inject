@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import {Constructor} from "./types";
+import {Constructor, Provider} from "./types";
 import {INJECT_KEY, InjectedData} from "./injector";
 import {SERVICE_KEY, ServiceProps} from "./decorators/service";
 import {Key} from "./key";
@@ -74,8 +74,8 @@ export class Container {
         }
 
         let anyPromises = false;
-        const mapped = injectData.map(({provider}) => {
-            const val = provider(this);
+        const mapped = injectData.map(({provider}: {provider: Provider}) => {
+            const val = provider(this, service);
             anyPromises ||= val instanceof Promise;
             return val;
         });
