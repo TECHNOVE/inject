@@ -118,7 +118,7 @@ describe("Container", () => {
 
     // create test for singletons
     it("should create different instances for singletons", () => {
-        @Service({ singleton: true })
+        @Service({ singleton: false })
         class SimpleService {}
 
         const container = new Container();
