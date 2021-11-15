@@ -1,6 +1,6 @@
-import { INJECT_KEY } from "../injector";
 import { Container } from "../container";
 import { FieldProvider, Provider } from "../types";
+import { getInjectedData, InjectedData, setInjectedData } from "../injector";
 
 export interface InjectProps {
     provider?: FieldProvider;
@@ -54,12 +54,11 @@ export const Inject: (
             }
         };
 
-        const data: InjectProps[] =
-            Reflect.getMetadata(INJECT_KEY, target) || [];
+        const data: InjectedData[] = getInjectedData(target);
         data.push({
             provider,
         });
-        Reflect.defineMetadata(INJECT_KEY, data, target);
+        setInjectedData(target, data);
 
         Object.defineProperty(target, propertyName, {
             get() {

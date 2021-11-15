@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import { Constructor, Provider } from "./types";
-import { INJECT_KEY, InjectedData } from "./injector";
+import { getInjectedData, InjectedData } from "./injector";
 import { Key } from "./key";
 import { getServiceData, ServiceData } from "./service";
 import { getAllPrototypes } from "./utils";
@@ -72,8 +72,7 @@ export class Container {
             }
         }
 
-        const injectData: InjectedData[] =
-            Reflect.getMetadata(INJECT_KEY, Service.prototype) || [];
+        const injectData: InjectedData[] = getInjectedData(Service.prototype);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const service = new (Service as any)();

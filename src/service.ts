@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import "reflect-metadata";
+
 export interface ServiceData {
     singleton: boolean;
 }
