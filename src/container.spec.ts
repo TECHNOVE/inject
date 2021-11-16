@@ -236,4 +236,36 @@ describe("Container", () => {
 
         expect(val).to.be.equal(5);
     });
+
+    it("uses registered instance", () => {
+        class A {
+            constructor(public val: number) {}
+        }
+
+        class MyClass extends A {}
+
+        const container = new Container();
+        container.register(A, new MyClass(5));
+
+        expect(container.get(A)).to.be.instanceOf(MyClass);
+        expect(container.get(A).val).to.be.equal(5);
+    });
+
+    it("uses registered classes", () => {
+        class A {
+            constructor(public val: number) {}
+        }
+
+        class MyClass extends A {
+            constructor() {
+                super(5);
+            }
+        }
+
+        const container = new Container();
+        container.register(MyClass);
+
+        expect(container.get(A)).to.be.instanceOf(MyClass);
+        expect(container.get(A).val).to.be.equal(5);
+    });
 });

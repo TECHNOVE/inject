@@ -9,6 +9,8 @@ import { getAllPrototypes } from "./utils";
 export class Container {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private readonly storage = new Map<unknown, any>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private readonly classes = new Map<unknown, any>();
 
     public constructor() {
         // public constructor
@@ -24,7 +26,7 @@ export class Container {
         return val;
     }
 
-    public register<T>(Service: Constructor<T>, instance: T) {
+    public register<T>(Service: Constructor<T>, instance?: T) {
         const serviceData: ServiceData = getServiceData(Service);
 
         if (!serviceData.singleton) {
@@ -43,8 +45,14 @@ export class Container {
             }
         }
 
-        for (const func of all) {
-            this.storage.set(func, instance);
+        if (instance) {
+            for (const func of all) {
+                this.storage.set(func, instance);
+            }
+        } else {
+            for (const func of all) {
+                this.classes.set(func, Service);
+            }
         }
     }
 
@@ -55,6 +63,10 @@ export class Container {
     // This function is not intended to be used directly, use get(Service) instead
     public getMaybePromise<T>(Service: Constructor<T>): T | Promise<T> {
         const serviceData: ServiceData = getServiceData(Service);
+
+        if (this.classes.has(Service)) {
+            Service = this.classes.get(Service);
+        }
 
         if (serviceData.singleton && this.storage.has(Service)) {
             return this.storage.get(Service);
