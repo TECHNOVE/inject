@@ -9,6 +9,8 @@ export type FieldProperty<T> = {
     type: PropertyType;
     name: string;
     defaultValue: T;
+
+    getValue(): T;
 };
 
 export type FieldParameter = {

@@ -71,6 +71,7 @@ export const Inject: (
                     defaultValue,
                     target,
                     type: propertyType,
+                    getValue: () => val,
                 };
 
                 const retrieved = retrievalProvider(container, field);

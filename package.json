@@ -1,7 +1,7 @@
 {
     "name": "@technove/inject",
     "description": "Dependency injection for TypeScript",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "author": "PaulBGD",
     "license": "MIT",
     "scripts": {
