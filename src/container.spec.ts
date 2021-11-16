@@ -6,6 +6,7 @@ import { Container } from "./container";
 import { Key } from "./key";
 import { Service } from "./decorators/service";
 import { Inject } from "./decorators/inject";
+import { PostInjection } from "./decorators/post-injection";
 
 describe("Container", () => {
     it("should be able to create a container", () => {
@@ -185,5 +186,54 @@ describe("Container", () => {
             ) {}
         }
         expect(() => container.get(B)).to.throw("found missing a @Inject");
+    });
+
+    it("calls after initialization", () => {
+        let ran = false;
+
+        class A {
+            @PostInjection()
+            private afterInit() {
+                ran = true;
+            }
+        }
+
+        const container = new Container();
+        container.get(A);
+        expect(ran).to.be.equal(true);
+
+        class Dependency {
+            public val = 5;
+        }
+
+        let retrievedValue = 0;
+        class B {
+            @Inject()
+            private dep!: Dependency;
+
+            @PostInjection()
+            private afterInit() {
+                retrievedValue = this.dep.val;
+            }
+        }
+
+        container.get(B);
+        expect(retrievedValue).to.be.equal(5);
+    });
+
+    it("handles after initialization with promise", async () => {
+        let val = 0;
+        class A {
+            @PostInjection()
+            private async init() {
+                await new Promise((resolve) => setTimeout(resolve, 5));
+                val = await Promise.resolve(5);
+            }
+        }
+
+        const container = new Container();
+        await container.load(A);
+
+        expect(val).to.be.equal(5);
     });
 });

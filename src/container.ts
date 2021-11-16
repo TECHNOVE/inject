@@ -119,11 +119,27 @@ export class Container {
                 return val;
             });
 
-            if (!anyPromises) {
+            const postInitialization = () => {
+                let anyPromises = false;
+
+                const mapped = injectData.postInjection.map((func) => {
+                    const val = func.call(service);
+                    anyPromises ||= val instanceof Promise;
+                    return val;
+                });
+
+                if (anyPromises) {
+                    return Promise.all(mapped).then(() => service);
+                }
+
                 return service;
+            };
+
+            if (!anyPromises) {
+                return postInitialization();
             }
 
-            return Promise.all(mapped).then(() => service);
+            return Promise.all(mapped).then(() => postInitialization());
         };
 
         return create(mappedParams);
