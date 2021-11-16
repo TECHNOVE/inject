@@ -4,6 +4,7 @@ import { Inject } from "./inject";
 import { getInjectedData } from "../injector";
 import { expect } from "chai";
 import { it } from "mocha";
+import { Container } from "../container";
 
 describe("@Inject", () => {
     it("adds injected data to the class", () => {
@@ -30,5 +31,19 @@ describe("@Inject", () => {
                 constructor(@Inject() public val: A) {}
             }
         }).to.throw("Cannot inject self in constructor");
+    });
+
+    it("supports reading the default value", () => {
+        class A {
+            @Inject(
+                (c, field) =>
+                    field.fieldType === "property" && field.defaultValue
+            )
+            val = 5;
+        }
+
+        const container = new Container();
+        const a = container.get(A);
+        expect(a.val).to.be.equal(5);
     });
 });

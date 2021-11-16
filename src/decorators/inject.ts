@@ -9,6 +9,8 @@ export interface InjectProps {
     provider?: FieldProvider<any>;
 }
 
+const NO_VALUE = Symbol("no-value");
+
 export const Inject: (
     props?: InjectProps | FieldProvider<any>
 ) => PropertyDecorator & ParameterDecorator =
@@ -58,9 +60,7 @@ export const Inject: (
         );
 
         if (parameterIndex === undefined) {
-            const defaultValue = (target as any)[propertyName];
-
-            let val: any = undefined;
+            let val: any = NO_VALUE;
             const provider: Provider = (
                 container: Container,
                 target: Object
@@ -68,11 +68,26 @@ export const Inject: (
                 const field: FieldProperty<unknown> = {
                     fieldType: "property",
                     name: propertyName as string,
-                    defaultValue,
+                    defaultValue: (target as any)[propertyName],
                     target,
                     type: propertyType,
                     getValue: () => val,
                 };
+
+                Object.defineProperty(target, propertyName, {
+                    get() {
+                        if (val === NO_VALUE) {
+                            throw new Error(
+                                `Property ${propertyName} has not been injected`
+                            );
+                        }
+                        return val;
+                    },
+
+                    set(newVal: never) {
+                        val = newVal;
+                    },
+                });
 
                 const retrieved = retrievalProvider(container, field);
                 if (retrieved instanceof Promise) {
@@ -82,21 +97,6 @@ export const Inject: (
                 }
             };
             data.properties.push(provider);
-
-            Object.defineProperty(target, propertyName, {
-                get() {
-                    if (val === undefined) {
-                        throw new Error(
-                            `Property ${propertyName} has not been injected`
-                        );
-                    }
-                    return val;
-                },
-
-                set(newVal: never) {
-                    val = newVal;
-                },
-            });
         } else {
             if (propertyType === target) {
                 throw new Error("Cannot inject self in constructor");
