@@ -7,12 +7,14 @@ export type FieldProperty<T> = {
     target: Object;
 
     type: PropertyType;
+    name: string;
     defaultValue: T;
 };
 
 export type FieldParameter = {
     fieldType: "parameter";
 
+    index: number;
     target: Constructor<unknown>;
 
     type: PropertyType;

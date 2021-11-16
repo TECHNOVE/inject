@@ -67,6 +67,7 @@ export const Inject: (
             ) => {
                 const field: FieldProperty<unknown> = {
                     fieldType: "property",
+                    name: propertyName as string,
                     defaultValue,
                     target,
                     type: propertyType,
@@ -106,6 +107,7 @@ export const Inject: (
             ) => {
                 const field: FieldParameter = {
                     fieldType: "parameter",
+                    index: parameterIndex,
                     target,
                     type: propertyType,
                 };
