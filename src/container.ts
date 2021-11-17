@@ -123,7 +123,9 @@ export class Container {
             }
 
             const mapped = executeArrayMaybePromise(
-                injectData.properties.map((provider) => provider(this, service))
+                injectData.properties.map(
+                    (provider) => () => provider(this, service)
+                )
             );
 
             const postInitialization = () => {
