@@ -1,9 +1,10 @@
 import { ParameterProvider, Provider } from "./types";
+import { Container } from "./container";
 
 export interface InjectedData {
     properties: Provider[];
     parameters: ParameterProvider<unknown>[];
-    postInjection: (() => Promise<void> | unknown)[];
+    postInjection: ((container: Container) => Promise<void> | unknown)[];
 }
 
 const INJECT_KEY = "__inject__";

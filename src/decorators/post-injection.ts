@@ -14,8 +14,8 @@ export const PostInjection: () => MethodDecorator =
             throw new Error("Expected function");
         }
 
-        if (func.length !== 0) {
-            throw new Error("Expected function to have 0 parameters");
+        if (func.length !== 0 && func.length !== 1) {
+            throw new Error("Expected function to have 0-1 parameters");
         }
 
         data.postInjection.push(func);

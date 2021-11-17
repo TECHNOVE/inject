@@ -132,7 +132,7 @@ export class Container {
                 let anyPromises = false;
 
                 const mapped = injectData.postInjection.map((func) => {
-                    const val = func.call(service);
+                    const val = func.call(service, this);
                     anyPromises ||= val instanceof Promise;
                     return val;
                 });

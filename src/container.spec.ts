@@ -212,13 +212,13 @@ describe("Container", () => {
             private dep!: Dependency;
 
             @PostInjection()
-            private afterInit() {
-                retrievedValue = this.dep.val;
+            private afterInit(container: Container) {
+                retrievedValue = container.get(Dependency).val + this.dep.val;
             }
         }
 
         container.get(B);
-        expect(retrievedValue).to.be.equal(5);
+        expect(retrievedValue).to.be.equal(10);
     });
 
     it("handles after initialization with promise", async () => {
