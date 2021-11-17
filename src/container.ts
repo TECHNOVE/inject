@@ -4,7 +4,7 @@ import { Constructor } from "./types";
 import { getInjectedData, InjectedData } from "./injector";
 import { Key } from "./key";
 import { getServiceData, ServiceData } from "./service";
-import { getAllPrototypes } from "./utils";
+import { executeArrayMaybePromise, getAllPrototypes } from "./utils";
 
 export class Container {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -104,15 +104,12 @@ export class Container {
             }
         }
 
-        let anyPromises = false;
-        const mappedParams = injectData.parameters.map((param) => {
-            const val = param(this, Service);
-            anyPromises ||= val instanceof Promise;
-            return val;
-        });
+        const params = executeArrayMaybePromise(
+            injectData.parameters.map((param) => () => param(this, Service))
+        );
 
-        if (anyPromises) {
-            return Promise.all(mappedParams).then((values) => create(values));
+        if (params instanceof Promise) {
+            return params.then((values) => create(values));
         }
 
         const create = (params: unknown[]) => {
@@ -125,11 +122,9 @@ export class Container {
                 }
             }
 
-            const mapped = injectData.properties.map((provider) => {
-                const val = provider(this, service);
-                anyPromises ||= val instanceof Promise;
-                return val;
-            });
+            const mapped = executeArrayMaybePromise(
+                injectData.properties.map((provider) => provider(this, service))
+            );
 
             const postInitialization = () => {
                 let anyPromises = false;
@@ -147,14 +142,14 @@ export class Container {
                 return service;
             };
 
-            if (!anyPromises) {
+            if (!(mapped instanceof Promise)) {
                 return postInitialization();
             }
 
-            return Promise.all(mapped).then(() => postInitialization());
+            return mapped.then(() => postInitialization());
         };
 
-        return create(mappedParams);
+        return create(params);
     }
 
     public getValue<T>(key: Key<T>): T | undefined {
