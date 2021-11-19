@@ -268,4 +268,5 @@ describe("Container", () => {
         expect(container.get(A)).to.be.instanceOf(MyClass);
         expect(container.get(A).val).to.be.equal(5);
     });
+
 });
